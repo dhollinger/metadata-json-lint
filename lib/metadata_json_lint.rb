@@ -151,9 +151,8 @@ module MetadataJsonLint
 
   def validate_puppet_ver!(range)
     min_ver = range['version_requirement'].gsub(/[><=~^]/, '').split(' ')[0]
-    if min_ver =~ /^[2-4]\.[0-9]\.\d$/
-      error(:requirements, "#{min_ver} is no longer a supported version of Puppet. Please use a valid range between 4.10.0 and 6.0.0.")
-    end
+
+    error(:requirements, "#{min_ver} is no longer a supported version of Puppet. Please use a valid range between 4.10.0 and 6.0.0.") if min_ver =~ /^[2-4]\.[0-9]\.\d$/
   end
   module_function :validate_puppet_ver!
 
