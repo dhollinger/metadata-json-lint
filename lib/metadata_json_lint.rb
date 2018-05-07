@@ -136,9 +136,26 @@ module MetadataJsonLint
       if requirement['name'] == 'pe'
         warn :requirements, "The 'pe' requirement is no longer supported by the Forge."
       end
+
+      begin
+        VersionRequirement.new(requirement.fetch('version_requirement', ''))
+      rescue ArgumentError => e
+        # Raised when the version_requirement provided could not be parsed
+        error :dependencies, "Invalid 'version_requirement' field in metadata.json: #{e}"
+      end
+
+      validate_puppet_ver!(requirement)
     end
   end
   module_function :validate_requirements!
+
+  def validate_puppet_ver!(range)
+    min_ver = range['version_requirement'].gsub(/[><=~^]/, '').split(' ')[0]
+    if min_ver =~ /^[2-4]\.[0-9]\.\d$/
+      error(:requirements, "#{min_ver} is no longer a supported version of Puppet. Please use a valid range between 4.10.0 and 6.0.0.")
+    end
+  end
+  module_function :validate_puppet_ver!
 
   def validate_dependencies!(deps)
     dep_names = []
