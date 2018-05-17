@@ -145,7 +145,7 @@ test "json_format" $FAILURE --format json
 test "non_array_requirements" $FAILURE
 
 # Run against a metadata.json with an unsupported minimum Puppet version for the requirements
-test "requirements_bad_version" $FAILURE
+test "requirements_eol_version" $FAILURE --strict-puppet-version
 
 # Test running without specifying file to parse
 cd perfect

@@ -14,11 +14,13 @@ module MetadataJsonLint
       :fail_on_warnings,
       :strict_license,
       :strict_dependencies,
+      :strict_puppet_version,
       :format
     ).new(
       true, # fail_on_warnings
       true, # strict_license
       false, # strict_dependencies
+      false, # strict_puppet_version
       'text', # format
     )
   end
@@ -38,6 +40,10 @@ module MetadataJsonLint
 
       opts.on('--[no-]fail-on-warnings', "Fail on any warnings. Defaults to '#{options[:fail_on_warnings]}'.") do |v|
         options[:fail_on_warnings] = v
+      end
+
+      opts.on('--[no-]strict-puppet-version', "Fail on strict Puppet Version check based on current supported Puppet versions. Defaults to '#{options[:strict_puppet_version]}'.") do |v|
+        options[:strict_puppet_version] = v
       end
 
       opts.on('-f', '--format FORMAT', %i[text json], 'The format in which results will be output (text, json)') do |format|
@@ -144,7 +150,7 @@ module MetadataJsonLint
         error :dependencies, "Invalid 'version_requirement' field in metadata.json: #{e}"
       end
 
-      validate_puppet_ver!(requirement)
+      validate_puppet_ver!(requirement) if options[:strict_puppet_version]
     end
   end
   module_function :validate_requirements!
@@ -152,7 +158,7 @@ module MetadataJsonLint
   def validate_puppet_ver!(range)
     min_ver = range['version_requirement'].gsub(/[><=~^]/, '').split(' ')[0]
 
-    error(:requirements, "#{min_ver} is no longer a supported version of Puppet. Please use a valid range between 4.10.0 and 6.0.0.") if min_ver =~ /^[2-4]\.[0-9]\.\d$/
+    warn(:requirements, "#{min_ver} is no longer a supported version of Puppet. Minimum supported version is 4.10.0.") if min_ver =~ /^[2-4]\.[0-9]\.\d$/
   end
   module_function :validate_puppet_ver!
 
