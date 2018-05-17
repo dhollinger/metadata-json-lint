@@ -1,1 +1,1 @@
-(ERROR) requirements: 3.2.0 is no longer a supported version of Puppet. Minimum supported version is 4.10.0.
+(WARN) requirements: 3.2.0 is no longer a supported version of Puppet. Minimum supported version is 4.10.0.
