@@ -47,6 +47,22 @@ module MetadataJsonLint
       end
     end
 
+    def puppet_eol?
+      true if range.begin.to_s =~ /^[2-4]\.[0-9]\.\d$/
+    end
+
+    def range
+      range
+    end
+
+    def min
+      range.begin
+    end
+
+    def max
+      range.end
+    end
+
     private
 
     attr_reader :range, :requirement

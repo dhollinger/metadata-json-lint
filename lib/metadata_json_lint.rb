@@ -144,21 +144,29 @@ module MetadataJsonLint
       end
 
       begin
-        VersionRequirement.new(requirement.fetch('version_requirement', ''))
+        puppet_req = VersionRequirement.new(requirement.fetch('version_requirement', ''))
       rescue ArgumentError => e
         # Raised when the version_requirement provided could not be parsed
         error :dependencies, "Invalid 'version_requirement' field in metadata.json: #{e}"
       end
 
-      validate_puppet_ver!(requirement) if options[:strict_puppet_version]
+      validate_puppet_ver!(puppet_req)
     end
   end
   module_function :validate_requirements!
 
-  def validate_puppet_ver!(range)
-    min_ver = range['version_requirement'].gsub(/[><=~^]/, '').split(' ')[0]
+  def validate_puppet_ver!(requirement)
+    if options[:strict_puppet_version] && requirement.open_ended?
+      warn(:requirements, "Puppet has an open ended version requirement #{requirement.range}")
+    end
 
-    warn(:requirements, "#{min_ver} is no longer a supported version of Puppet. Minimum supported version is 4.10.0.") if min_ver =~ /^[2-4]\.[0-9]\.\d$/
+    if options[:strict_puppet_version] && requirement.puppet_eol?
+      warn(:requirements, "#{requirement.min} is no longer supported. Minimum supported version is 4.10.0")
+    end
+
+    return unless requirement.mixed_syntax?
+    warn(:dependencies, 'Mixing "x" or "*" version syntax with operators is not recommended in ' \
+      "metadata.json, use one style in the #{dep['name']} dependency: #{dep['version_requirement']}")
   end
   module_function :validate_puppet_ver!
 
